@@ -1,0 +1,18 @@
+{
+  "default": {
+    "visibleDefaultEngines": [
+      "duckduckgo-palemoon", "mojeek", "bing", "ecosia", "ekoru", "twitter", "wikipedia", "yahoo"
+    ]
+  },
+  "regionOverrides": {
+  },
+  "locales": {
+    "en-US": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo-palemoon", "mojeek", "bing", "ecosia", "ekoru", "twitter", "wikipedia", "yahoo"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,353 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://browser/content/browser.css" type="text/css"?>
+  
+		  
+<window id="main" title="Noob Music"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	width="800"
+	height="700"	 
+	><!-- page -->
+	<keyset>
+		<key id="previous_song" modifiers="meta" keycode="VK_LEFT" oncommand="music_app.playlist.play_previous();"/>
+		<key id="next_song" modifiers="meta" keycode="VK_RIGHT" oncommand="music_app.playlist.play_next();"/>
+		<key id="play_pause" keycode="VK_RETURN" oncommand="music_app.controls.toggle_play();"/>
+		<key id="select_all" modifiers="meta" key="A" oncommand="music_app.playlist.select_all();"/>
+	</keyset>
+
+	<!--<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"/>-->
+	<script type="application/x-javascript" src="chrome://browser/content/jquery.js" />
+	<script type="application/x-javascript" src="chrome://browser/content/jquery-ui.min.js" />
+	<script type="application/x-javascript" src="chrome://browser/content/jsmediatags.min.js" />
+	<!--<script type="application/x-javascript" src="chrome://noobmusic/content/global_overlay.js" />-->
+	<html:canvas id='mycanvas' style='display:none;'>
+	</html:canvas>
+	<vbox style='display:none;'>
+		<html:audio class='audio_player' controls=''></html:audio>
+		<!--<html:video class='audio_player' controls=''></html:video>-->
+		<html:div class='download_container'></html:div>
+		<!--<label>test</label>
+		<button onclick='music_app.init_audio();' value='test'></button>-->
+		<!--<video class="elementor-video" src="https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4" controls=""></video>-->
+		<!--<html:video class="elementor-video" src="https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4" controls=""></html:video>-->
+		<!--<audio class='test' src='file:///users/siggi/song.wav' controls=''></audio>-->
+	</vbox>
+	<box style='display:none;' class='loading_screen'>
+		<vbox pack="center" align="center" class='loading_text_container'>
+			<label pack="center" align="center" value='loading, please wait' style='display:none;' class='loading_text' flex="1" />
+		</vbox>
+		<vbox pack="center" align="center" class='new_playlist_container' style='display:none;'  flex="1">
+			<vbox>
+				<textbox id='playlist_name' placeholder='playlist name' />
+			</vbox>
+			<vbox>
+				<button label='save playlist' class='save_playlist_button' />
+			</vbox>
+		</vbox>
+		<vbox pack="center" align="center" class='delete_dialog' style='display:none;' flex="1">
+			<label value='are you sure you want to delete this item?' />	
+			<button label='yes' class='delete_button' />		
+			<button label='no' class='cancel_button' />
+		</vbox>
+		<!--<vbox class='smart_shuffle_options' style='display:none;'>
+			<hbox>
+				
+			</hbox>
+		</vbox>-->
+	</box>
+	<vbox flex='1' class='main_wrap'>
+		<vbox>
+			<hbox class='tab_container' style=''>
+
+			</hbox>
+			<hbox class='toolbar' id='main_toolbar'>
+				<!--<label value='&#xeac9;' class='icon back_button' />-->
+				<textbox id='prompt' placeholder='prompt (paste file url here to download)' flex='4' />
+				<hbox id='toolbar_buttons'>
+					<label value='&#xeca3;' class='icon main_view_button' />
+					<label value='&#xefe1;' class='icon settings_button' />
+					<label value='&#xefc7;' class='icon addons_page' onclick="window.open('chrome://mozapps/content/extensions/extensions.xul', 'addons-page', 'chrome,width=1000,height=900');" />
+				</hbox>
+				<textbox id='search' placeholder='search' flex='1' />
+			</hbox>
+		</vbox>
+		<vbox id='view_container' flex="1">
+			<hbox flex="1" id='settings' style='display:none;'>
+
+				<!--<vbox flex="1" style='' class='settings_sidebar sidebar'>
+					<hbox class='playlist'>
+						<label>library</label>
+					</hbox>
+					<hbox class='playlist'>
+						<label>shuffle</label>
+					</hbox>
+					<hbox class='playlist'>
+						<label>tags</label>
+					</hbox>
+					<hbox class='playlist'>
+						<label>genres</label>
+					</hbox>
+					<hbox class='playlist'>
+						<label>users</label>
+					</hbox>
+				</vbox>-->
+				<vbox flex="1" style='' class='settings_main_container main_container'>
+					<vbox id='library_settings' flex="1">
+						<hbox>
+							<label value='library location' class='settings_label' />
+							<textbox id='library_location_input' flex="1" />
+							<button label='choose folder' id='choose_folder_button_library' />
+						</hbox>
+						<button label='save and index library' id='save_button' />
+						<hbox>
+							<checkbox label='use numrand for randomization' checked="true" class='use_numrand_checkbox' />
+						</hbox>
+						<button label='clean library of lost files (unfound files are removed from library)' class='clean_button' />
+					</vbox>
+				</vbox>
+			</hbox>
+			<hbox flex="1" id='home' class='current_view'>
+				<vbox flex="1" style='' class='playlist_sidebar sidebar'>
+					<hbox class='playlist library_button selected'>
+						<label>library</label>
+					</hbox>
+					<vbox class='playlist_side_container' flex="1">
+						<!--<hbox class='playlist'>
+							<label>electronic</label>
+						</hbox>-->
+					</vbox>
+					<hbox class='sidebar_buttons'>
+						<label value='&#xec3e;' class='add_playlist_button icon' flex='3' tooltiptext='add playlist' />
+						<label value='&#xec5b;' class='folder_playlist_button icon' flex='3' tooltiptext='add folder' />
+						<label value='&#xee09;' class='trash_button icon' flex='3' tooltiptext='trash (drop songs or playlist here to delete)' />
+					</hbox>
+				</vbox>
+				<vbox flex="5" style='' class='playlist_main_container main_container'>
+					<vbox class='controls_container'>
+						<hbox class='container'><!--aria-hidden="true"-->
+							<label value='nothing playing' class='center song_info' flex="1" />
+						</hbox>
+						<hbox class='controls'>
+							<hbox class='options'>
+								<label class='icon shuffle_button' value='&#xefcf;' tooltiptext='shuffle' />
+								<label class='icon shuffle_options' value='&#xec83;' tooltiptext='smart shuffle by tags' />
+								<label class='icon info_button' value='&#xef4e;' tooltiptext='song info' />
+								<label class='icon move_after_button' value='&#xea66;' tooltiptext='move selection after currently playing song' />
+								<label class='icon continue_playlist_button' value='&#xefd1;' tooltiptext='continue from last played song' />
+								<label class='icon loop_button' value='&#xef80;' tooltiptext='loop playlist' />
+								<label class='icon scroll_to_button' value='&#xeaa5;' tooltiptext='scroll to currently playing song' />
+							</hbox>
+							<label style='font-family:icofont;' class='previous_button controls_button' tooltiptext='play previous song'>&#xec6e;</label>
+							<label style='font-family:icofont;' class='play_button controls_button' tooltiptext='play'>&#xecaa;</label>
+							<label style='font-family:icofont;' class='next_button controls_button' tooltiptext='play next song'>&#xec6e;</label>
+							<hbox class='volume_control'>
+								<scale min="0" max="100" increment="1" value="100" class='volume_slider' tooltiptext='volume'></scale>
+							</hbox>
+						</hbox>
+						<hbox class='seeker'>
+							<label class='current_duration'>0&#58;00</label>
+							<scale min="0" max="10000" increment="1" value="0" class='seeker_slider' flex="1" tooltiptext='song position'></scale>
+							<label class='total_duration'>0&#58;00</label>
+						</hbox>
+					</vbox>
+					<vbox flex="1" class='playlist_view'>
+						<!--<hbox draggable="true" id='test' class='song' style='background-color:#0c5;'>
+							test
+						</hbox>
+						<hbox draggable="true" id='test1' class='song1' style='background-color:blue;'>
+							test
+						</hbox>-->
+						<!--
+						<listbox flex="1" class='playlist_listbox' seltype='multiple'>
+						    <listhead>
+						        <listheader class='playlist_header song' colid='title_column'>
+						        	<label value='Title' />
+						        </listheader>
+						        <listheader class='playlist_header' colid='artist_column' collapsed="false">
+						        	<label value='Artist' />
+						        </listheader>
+						        <listheader class='playlist_header' colid='album_column'>
+						        	<label value='Album' />
+						        </listheader>
+						    </listhead>
+						    <listcols>
+						        <listcol id='title_column' flex="3"></listcol>
+						        <splitter resizeafter="farthest"></splitter>
+						        <listcol id='artist_column' collapsed="false" flex="3"></listcol>
+						        <splitter resizeafter="farthest"></splitter>
+						        <listcol id='album_column' flex="3"></listcol>
+						    </listcols>
+						    <listitem id='1' draggable="true" class='song'>
+						        <listcell><label value='2 song' class='truncate' /></listcell>
+						        <listcell><label value='2 fgsfgfgsfgfgsfgfgsfg' class='truncate' /></listcell>
+						        <listcell><label value='21 a' class='truncate' /></listcell>
+						    </listitem>
+						    <listitem id='2' draggable="true" class='song'>
+						        <listcell><label value='2 adfadf' class='truncate' /></listcell>
+						        <listcell><label value='12 songsongsongsongsongsong asong' class='truncate' /></listcell>
+						        <listcell><label value='2 song' class='truncate' /></listcell>
+						    </listitem>
+						    <listitem id='3' draggable="true" class='song'>
+						        <listcell><label value='32 asdas' class='truncate' /></listcell>
+						        <listcell><label value='2 song' class='truncate' /></listcell>
+						        <listcell><label value='2 song' class='truncate' /></listcell>
+						    </listitem>
+						</listbox>
+						-->
+
+						<!--<listbox flex="1" class='playlist_move' seltype='multiple' draggable="true">
+						    <listcols>
+						        <listcol id='title_column' flex="3"></listcol>
+						        <listcol id='artist_column' collapsed="true" flex="3"></listcol>
+						        <listcol id='album_column' flex="3"></listcol>
+						    </listcols>
+						</listbox>-->
+						<!--
+						<tree flex="1" id='playlist_tree' hidefilters="true" enableColumnDrag="true" flatList="true" draggable="true"  editable="true">
+							<treecols>
+								<treecol type='checkbox' id="check_value"  editable="true" flex="1" label='name' ></treecol>
+					        		<splitter resizeafter="farthest"></splitter>
+								<treecol id="name"  editable="true" flex="1" label='name' ></treecol>
+					        		<splitter resizeafter="farthest"></splitter>
+								<treecol id="location" editable="true" flex="1" label='artist'></treecol>
+					        		<splitter resizeafter="farthest"></splitter>
+								<treecol id="size"  editable="true"  flex="1" label='album'></treecol>
+							</treecols>
+
+							<treechildren>
+								<treeitem >
+									<treerow id='1' draggable='true' class='song'>
+										<treecell value="true"/>
+										<treecell label="mozilla"/>
+										<treecell label="/usr/local"/>
+										<treecell label="2520 bytes"/>
+									</treerow>
+								</treeitem>
+								<treeitem id='2' draggable='true' class='song'>
+									<treerow>
+										<treecell value="true"/>
+										<treecell label="mozilla"/>
+										<treecell label="/usr/local"/>
+										<treecell label="2520 bytes"/>
+									</treerow>
+								</treeitem>
+								<treeitem id='3' draggable='true' class='song'>
+									<treerow>
+										<treecell value="true"/>
+										<treecell label="mozilla"/>
+										<treecell label="/usr/local"/>
+										<treecell label="2520 bytes"/>
+									</treerow>
+								</treeitem>
+							</treechildren>
+						</tree>
+						-->
+
+						<!--<hbox align="center" id="search-box">
+							<label accesskey="F" control="filter">Filter</label>
+							<textbox id="filter"  flex="1"/>
+							<button id="clearFilter" label="Clear" accesskey="C" disabled="true"/>
+						</hbox>-->
+
+						<tree id="tree" flex="1" persist="sortDirection sortResource" sortDirection="ascending" editable="true" enableColumnDrag="true" ><!-- sortResource="description"  -->
+							<treecols>
+								<!--<treecol id="id" editable="false" label="" collapsed="true" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator" sortDirection="ascending"/>-->
+								<treecol id="order" editable="false" label="" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator" sortDirection="ascending"/>
+								<splitter class="tree-splitter"/>
+								<treecol  type="checkbox" editable="false" id="is_playing" label="" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator" />
+								<splitter class="tree-splitter"/>
+								<treecol  type="checkbox" editable="true" id="check_value" label="" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator" />
+								<splitter class="tree-splitter"/>
+								<treecol editable="true" id="title" label="title" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator" />
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="artist" label="artist" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="album" label="album" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="year" label="year" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="track" label="track" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="genre" label="genre" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="length" label="length" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="size" label="size" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="plays" label="plays" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="last_played" label="last_played" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="date_added" label="date_added" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="tags" label="tags" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+								<splitter class="tree-splitter"/>
+								<treecol  editable="true" id="rating" label="rating" flex="1" persist="width ordinal hidden" class="sortDirectionIndicator"/>
+							</treecols>
+							<treechildren id="tree_children" />
+						</tree>
+						<hbox style='display:none;' id='edit_song_info_container'>
+							<vbox flex="3">
+								<textbox id='title' class='song_info_value' placeholder='song title' flex='4' />
+								<textbox id='artist' class='song_info_value' placeholder='artist' flex='4' />
+								<textbox id='album' class='song_info_value' placeholder='album' flex='4' />
+								<textbox id='year' class='song_info_value' placeholder='year' flex='4' />
+							</vbox>
+							<vbox flex="3">
+								<textbox id='track' class='song_info_value' placeholder='track' flex='4' />
+								<textbox id='genre' class='song_info_value' placeholder='genre' flex='4' />
+								<textbox id='rating_value' class='song_info_value' placeholder='rating' flex='4' />
+								<checkbox id='check_value' class='song_info_checkbox' label='song(s) enabled' flex='4' />
+							</vbox>
+							<hbox flex="3" class='tags_container'>
+								<vbox class='tags_container_a'>
+
+								</vbox>
+								<vbox class='tags_container_b'>
+
+								</vbox>
+							</hbox>
+							<vbox>
+								<button label='apply changes' class='song_info_apply_button' />
+								<button label='cancel changes' class='song_info_cancel_button' />
+								<button label='read song info' class='read_song_info_button' />
+							</vbox>
+						</hbox>
+						<!--
+						<tree id="abResultsTree" flex="1" enableColumnDrag="true" class="plain focusring"
+						    onclick="AbResultsPaneOnClick(event);"
+						             label="&_PhoneticName.label;" hidden="true"/>
+						     
+
+						  </treecols>
+						  <treechildren ondragstart="nsDragAndDrop.startDrag(event, abResultsPaneObserver);"/>
+						</tree>
+						-->
+						<!--<playlist id="playlist" 
+							flex="1"
+							enableColumnDrag="true"
+							persist="column-list column-widths"
+							editable="true"
+							hidefilters="true"
+						/>-->
+
+
+
+					</vbox>
+				</vbox>
+
+			</hbox>
+		</vbox>
+	</vbox>
+	<script type="application/javascript" src="chrome://browser/content/global_overlay.js"/>
+
+	<script type='application/javascript'>
+		$(document).ready(function() {		
+			setTimeout(function() {		
+				console.log('ready');
+				music_app.init();
+			}, 200);
+		});
+	</script>
+</window>
